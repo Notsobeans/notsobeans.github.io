@@ -133,8 +133,8 @@
     <script>
         // Function to set the theme
         function setTheme(themePath) {
-            console.log(`Setting theme: ${themePath}`);
-            const imageUrl = `${themePath}/image.jpg?cacheBuster=${new Date().getTime()}`;
+            console.log(`Setting theme: ${themePath.name}`);
+            const imageUrl = `${themePath.path}/image.jpg?cacheBuster=${new Date().getTime()}`;
             console.log(`Setting background image: ${imageUrl}`);
             
             // Create a new Image object to check if the image exists
@@ -150,7 +150,7 @@
             img.src = imageUrl;
 
             const audioSource = document.getElementById('audioSource');
-            audioSource.src = `${themePath}/music.mp3`;
+            audioSource.src = `${themePath.path}/music.mp3`;
             console.log(`Setting audio source: ${audioSource.src}`);
             
             const audioElement = document.getElementById('myAudio');
@@ -158,7 +158,7 @@
         }
 
         // Default theme on load
-        setTheme('themes/Enormeeta');
+        setTheme({ name: 'Enormeeta', path: 'themes/Enormeeta' });
 
         // Clock update function
         function updateClock() {
@@ -177,23 +177,26 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Fetch themes from directory and display menu
-        const themes = ['Enormeeta', 'IceCap']; // List of theme folders
-        const themeMenu = document.getElementById('theme-menu');
-        
-        themes.forEach(theme => {
-            const themeItem = document.createElement('div');
-            themeItem.className = 'theme-item';
-            themeItem.innerHTML = `
-                <img src="themes/${theme}/image.jpg?cacheBuster=${new Date().getTime()}" alt="${theme}">
-                <span>${theme}</span>
-            `;
-            themeItem.addEventListener('click', () => {
-                console.log(`Theme clicked: ${theme}`);
-                setTheme(`themes/${theme}`);
-            });
-            themeMenu.appendChild(themeItem);
-        });
+        // Fetch themes from JSON file and display menu
+        fetch('themes.json')
+            .then(response => response.json())
+            .then(themes => {
+                const themeMenu = document.getElementById('theme-menu');
+                themes.forEach(theme => {
+                    const themeItem = document.createElement('div');
+                    themeItem.className = 'theme-item';
+                    themeItem.innerHTML = `
+                        <img src="${theme.path}/image.jpg?cacheBuster=${new Date().getTime()}" alt="${theme.name}">
+                        <span>${theme.name}</span>
+                    `;
+                    themeItem.addEventListener('click', () => {
+                        console.log(`Theme clicked: ${theme.name}`);
+                        setTheme(theme);
+                    });
+                    themeMenu.appendChild(themeItem);
+                });
+            })
+            .catch(error => console.error('Error fetching themes:', error));
 
         // Error handling for audio loading
         const audioElement = document.getElementById('myAudio');
