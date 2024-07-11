@@ -14,6 +14,7 @@
             background-size: cover;
             background-position: center;
             flex-direction: column;
+            position: relative; /* Ensure absolute positioning is relative to body */
         }
         #clock {
             position: absolute;
@@ -81,32 +82,31 @@
         #favorites a:hover {
             background-color: rgba(0, 0, 0, 0.7);
         }
-        #theme-menu {
+        #theme-menu-button {
             position: absolute;
             bottom: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            background-color: black;
+            color: white;
+            cursor: pointer;
+        }
+        #theme-menu-button:hover {
+            background-color: #333;
+        }
+        #theme-menu {
+            display: none;
+            position: absolute;
+            bottom: 60px;
             left: 20px;
             background-color: rgba(0, 0, 0, 0.7);
             padding: 10px;
             border-radius: 5px;
-            cursor: pointer;
-            color: white;
-        }
-        #theme-menu:hover {
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-        .theme-list {
-            display: none;
-            position: absolute;
-            top: calc(100% + 10px);
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
             z-index: 1000;
-        }
-        .theme-list.active {
-            display: block;
         }
         .theme-item {
             display: flex;
@@ -138,7 +138,7 @@
         <a href="https://mangadex.org/titles/feed" target="_blank">MangaDex</a>
         <a href="https://aniwave.to/home" target="_blank">AniWave</a>
         <a href="https://store.steampowered.com/" target="_blank">Steam</a>
-        <a href="https://onedrive.live.com/" target="_blank">OneDrive</a>
+        <a href="" target="_blank">OneDrive</a>
         <a href="https://chatgpt.com/" target="_blank">ChatGPT</a>
     </div>
     <div id="search-bar">
@@ -147,10 +147,8 @@
             <input type="submit" value="Search">
         </form>
     </div>
-    <div id="theme-menu" onclick="toggleThemeList()">Change Theme</div>
-    <div id="theme-list" class="theme-list">
-        <!-- Theme items will be populated here -->
-    </div>
+    <button id="theme-menu-button">Change Theme</button>
+    <div id="theme-menu"></div>
     <script>
         // Function to set the theme
         function setTheme(themePath) {
@@ -177,17 +175,23 @@
             const audioElement = document.getElementById('myAudio');
             audioElement.load();
 
-            // Save theme selection to local storage
+            // Save selected theme to localStorage
             localStorage.setItem('selectedTheme', themePath);
         }
 
-        // Default theme on load
-        const savedTheme = localStorage.getItem('selectedTheme');
-        if (savedTheme) {
-            setTheme(savedTheme);
-        } else {
-            setTheme('themes/Enormeeta'); // Default theme if none saved
+        // Load saved theme on page load
+        function loadSavedTheme() {
+            const savedTheme = localStorage.getItem('selectedTheme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                // Default theme if no saved theme found
+                setTheme('themes/Enormeeta');
+            }
         }
+
+        // Default theme on load
+        loadSavedTheme();
 
         // Clock update function
         function updateClock() {
@@ -206,11 +210,13 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Fetch themes from JSON and display in theme menu
+        // Fetch themes from JSON and display menu
         fetch('themes.json')
             .then(response => response.json())
             .then(themes => {
-                const themeMenu = document.getElementById('theme-list');
+                const themeMenu = document.getElementById('theme-menu');
+                const themeButton = document.getElementById('theme-menu-button');
+
                 themes.forEach(theme => {
                     const themeItem = document.createElement('div');
                     themeItem.className = 'theme-item';
@@ -221,18 +227,29 @@
                     themeItem.addEventListener('click', () => {
                         console.log(`Theme clicked: ${theme.name}`);
                         setTheme(theme.path);
-                        document.getElementById('theme-list').classList.remove('active');
+                        themeMenu.style.display = 'none'; // Hide theme menu after selection
                     });
                     themeMenu.appendChild(themeItem);
                 });
-            })
-            .catch(error => console.error('Error fetching themes:', error));
 
-        // Toggle theme list visibility
-        function toggleThemeList() {
-            const themeList = document.getElementById('theme-list');
-            themeList.classList.toggle('active');
-        }
+                // Show theme menu on button click
+                themeButton.addEventListener('click', () => {
+                    if (themeMenu.style.display === 'block') {
+                        themeMenu.style.display = 'none';
+                    } else {
+                        themeMenu.style.display = 'block';
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching themes:', error);
+            });
+
+        // Error handling for audio loading
+        const audioElement = document.getElementById('myAudio');
+        audioElement.addEventListener('error', function(e) {
+            console.error('Error occurred while loading audio:', e.target.error);
+        });
     </script>
 </body>
 </html>
