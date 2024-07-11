@@ -136,7 +136,18 @@
             console.log(`Setting theme: ${themePath}`);
             const imageUrl = `${themePath}/image.jpg`;
             console.log(`Setting background image: ${imageUrl}`);
-            document.body.style.backgroundImage = `url(${imageUrl})`;
+            
+            // Create a new Image object to check if the image exists
+            const img = new Image();
+            img.onload = function() {
+                console.log(`Image loaded successfully: ${imageUrl}`);
+                document.body.style.backgroundImage = `url(${imageUrl})`;
+            };
+            img.onerror = function() {
+                console.error(`Image failed to load: ${imageUrl}`);
+                // Fallback to a default image or keep the current background
+            };
+            img.src = imageUrl;
 
             const audioSource = document.getElementById('audioSource');
             audioSource.src = `${themePath}/music.mp3`;
