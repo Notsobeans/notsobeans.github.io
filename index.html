@@ -22,30 +22,103 @@
             left: 20px;
         }
         #clock {
-            font-size: 48px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 72px;
             color: white;
             text-shadow: 2px 2px 4px #000000;
+        }
+        #search-bar {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        #search-bar input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            background-color: black;
+            color: white;
+        }
+        #search-bar input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            margin-left: 10px;
+            background-color: black;
+            color: white;
+            cursor: pointer;
+        }
+        #search-bar input[type="submit"]:hover {
+            background-color: #333;
+        }
+        #favorites {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 18px;
+            color: white;
+        }
+        #favorites a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+        #favorites a:hover {
+            background-color: rgba(0, 0, 0, 0.7);
         }
     </style>
 </head>
 <body>
     <div id="clock"></div>
-    <audio controls autoplay>
+    <div id="favorites">
+        <a href="https://www.google.com" target="_blank">Google</a>
+        <a href="https://www.youtube.com" target="_blank">YouTube</a>
+        <a href="https://anilist.co/home" target="_blank">AniList</a>
+        <a href="https://mangadex.org/titles/feed" target="_blank">MangaDex</a>
+        <a href="https://aniwave.to/home" target="_blank">AniWave</a>
+        <a href="https://store.steampowered.com/" target="_blank">Steam</a>
+        <a href="https://onedrive.live.com/" target="_blank">OneDrive</a>
+        <a href="https://chatgpt.com/" target="_blank">ChatGPT</a>
+    </div>
+    <audio controls autoplay loop>
         <source src="Magical Dollhouse.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    <div id="search-bar">
+        <form action="https://www.google.com/search" method="get">
+            <input type="text" name="q" placeholder="Search Google...">
+            <input type="submit" value="Search">
+        </form>
+    </div>
     <script>
         function updateClock() {
             const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
+            let hours = now.getHours();
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            const timeString = `${hours}:${minutes}`;
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
             document.getElementById('clock').textContent = timeString;
         }
 
-        // Update the clock immediately and then every minute
+        // Update the clock immediately and then every second
         updateClock();
-        setInterval(updateClock, 60000);
+        setInterval(updateClock, 1000);
     </script>
 </body>
 </html>
