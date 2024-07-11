@@ -131,68 +131,52 @@
     </div>
     <div id="theme-menu"></div>
     <script>
-        // Function to set the theme
-        function setTheme(themePath) {
-            console.log(`Setting theme: ${themePath}`);
-            const imageUrl = `${themePath}/image.jpg?cacheBuster=${new Date().getTime()}`;
-            console.log(`Setting background image: ${imageUrl}`);
-            
-            // Create a new Image object to check if the image exists
-            const img = new Image();
-            img.onload = function() {
-                console.log(`Image loaded successfully: ${imageUrl}`);
-                document.body.style.backgroundImage = `url(${imageUrl})`;
-            };
-            img.onerror = function() {
-                console.error(`Image failed to load: ${imageUrl}`);
-                // Fallback to a default image or keep the current background
-            };
-            img.src = imageUrl;
+// Function to set the theme
+function setTheme(themePath) {
+    console.log(`Setting theme: ${themePath}`);
+    const imageUrl = `${themePath}/image.jpg?cacheBuster=${new Date().getTime()}`;
+    
+    // Create a new Image object to check if the image exists
+    const img = new Image();
+    img.onload = function() {
+        console.log(`Image loaded successfully: ${imageUrl}`);
+        document.body.style.backgroundImage = `url(${imageUrl})`;
+    };
+    img.onerror = function() {
+        console.error(`Image failed to load: ${imageUrl}`);
+        // Fallback to a default image or keep the current background
+    };
+    img.src = imageUrl;
 
-            const audioSource = document.getElementById('audioSource');
-            audioSource.src = `${themePath}/music.mp3`;
-            console.log(`Setting audio source: ${audioSource.src}`);
-            
-            const audioElement = document.getElementById('myAudio');
-            audioElement.load();
-        }
+    const audioSource = document.getElementById('audioSource');
+    audioSource.src = `${themePath}/music.mp3`;
+    console.log(`Setting audio source: ${audioSource.src}`);
+    
+    const audioElement = document.getElementById('myAudio');
+    audioElement.load();
+}
 
-        // Default theme on load
-        setTheme('themes/Enormeeta');
+// Default theme on load
+setTheme('themes/Enormeeta');
 
-        // Clock update function
-        function updateClock() {
-            const now = new Date();
-            let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
-            const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
-            document.getElementById('clock').textContent = timeString;
-        }
+// Fetch themes from directory and display menu
+const themes = ['Enormeeta', 'Ice Cap']; // List of theme folders
+const themeMenu = document.getElementById('theme-menu');
 
-        // Update the clock immediately and then every second
-        updateClock();
-        setInterval(updateClock, 1000);
+themes.forEach(theme => {
+    const themeItem = document.createElement('div');
+    themeItem.className = 'theme-item';
+    themeItem.innerHTML = `
+        <img src="themes/${theme}/image.jpg?cacheBuster=${new Date().getTime()}" alt="${theme}">
+        <span>${theme}</span>
+    `;
+    themeItem.addEventListener('click', () => {
+        console.log(`Theme clicked: ${theme}`);
+        setTheme(`themes/${theme}`);
+    });
+    themeMenu.appendChild(themeItem);
+});
 
-        // Fetch themes from directory and display menu
-        const themes = ['Enormeeta', 'Ice Cap']; // List of theme folders
-        const themeMenu = document.getElementById('theme-menu');
-        
-        themes.forEach(theme => {
-            const themeItem = document.createElement('div');
-            themeItem.className = 'theme-item';
-            themeItem.innerHTML = `
-                <img src="themes/${theme}/image.jpg?cacheBuster=${new Date().getTime()}" alt="${theme}">
-                <span>${theme}</span>
-            `;
-            themeItem.addEventListener('click', () => {
-                console.log(`Theme clicked: ${theme}`);
-                setTheme(`themes/${theme}`);
-            });
-            themeMenu.appendChild(themeItem);
         });
     </script>
 </body>
