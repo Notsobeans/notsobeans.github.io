@@ -135,6 +135,7 @@
         function setTheme(themePath) {
             console.log(`Setting theme: ${themePath}`);
             const imageUrl = `${themePath}/image.jpg?cacheBuster=${new Date().getTime()}`;
+            console.log(`Setting background image: ${imageUrl}`);
             
             // Create a new Image object to check if the image exists
             const img = new Image();
@@ -158,6 +159,23 @@
 
         // Default theme on load
         setTheme('themes/Enormeeta');
+
+        // Clock update function
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+            document.getElementById('clock').textContent = timeString;
+        }
+
+        // Update the clock immediately and then every second
+        updateClock();
+        setInterval(updateClock, 1000);
 
         // Fetch themes from directory and display menu
         const themes = ['Enormeeta', 'Ice Cap']; // List of theme folders
