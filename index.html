@@ -134,7 +134,7 @@
         // Function to set the theme
         function setTheme(themePath) {
             console.log(`Setting theme: ${themePath}`);
-            const imageUrl = `${themePath}/image.jpg`;
+            const imageUrl = `${themePath}/image.jpg?cacheBuster=${new Date().getTime()}`;
             console.log(`Setting background image: ${imageUrl}`);
             
             // Create a new Image object to check if the image exists
@@ -185,7 +185,7 @@
             const themeItem = document.createElement('div');
             themeItem.className = 'theme-item';
             themeItem.innerHTML = `
-                <img src="themes/${theme}/image.jpg" alt="${theme}">
+                <img src="themes/${theme}/image.jpg?cacheBuster=${new Date().getTime()}" alt="${theme}">
                 <span>${theme}</span>
             `;
             themeItem.addEventListener('click', () => {
