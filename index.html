@@ -133,9 +133,15 @@
     <script>
         // Function to set the theme
         function setTheme(themePath) {
-            document.body.style.backgroundImage = `url(${themePath}/image.jpg)`;
+            console.log(`Setting theme: ${themePath}`);
+            const imageUrl = `${themePath}/image.jpg`;
+            console.log(`Setting background image: ${imageUrl}`);
+            document.body.style.backgroundImage = `url(${imageUrl})`;
+
             const audioSource = document.getElementById('audioSource');
             audioSource.src = `${themePath}/music.mp3`;
+            console.log(`Setting audio source: ${audioSource.src}`);
+            
             const audioElement = document.getElementById('myAudio');
             audioElement.load();
         }
@@ -171,7 +177,10 @@
                 <img src="themes/${theme}/image.jpg" alt="${theme}">
                 <span>${theme}</span>
             `;
-            themeItem.addEventListener('click', () => setTheme(`themes/${theme}`));
+            themeItem.addEventListener('click', () => {
+                console.log(`Theme clicked: ${theme}`);
+                setTheme(`themes/${theme}`);
+            });
             themeMenu.appendChild(themeItem);
         });
     </script>
