@@ -171,10 +171,24 @@
             
             const audioElement = document.getElementById('myAudio');
             audioElement.load();
+
+            // Save the applied theme to localStorage
+            localStorage.setItem('appliedTheme', themePath);
+        }
+
+        // Function to load the theme from localStorage on page load
+        function loadTheme() {
+            const appliedTheme = localStorage.getItem('appliedTheme');
+            if (appliedTheme) {
+                setTheme(appliedTheme);
+            } else {
+                // Default theme if no theme is saved
+                setTheme('themes/Enormeeta');
+            }
         }
 
         // Default theme on load
-        setTheme('themes/Enormeeta');
+        loadTheme();
 
         // Clock update function
         function updateClock() {
