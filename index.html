@@ -14,7 +14,6 @@
             background-size: cover;
             background-position: center;
             flex-direction: column;
-            position: relative; /* Ensure absolute positioning is relative to body */
         }
         #clock {
             position: absolute;
@@ -82,44 +81,40 @@
         #favorites a:hover {
             background-color: rgba(0, 0, 0, 0.7);
         }
-        #theme-menu-button {
+        #theme-menu {
             position: absolute;
             bottom: 20px;
             left: 20px;
-            padding: 10px 20px;
-            font-size: 18px;
-            border-radius: 25px;
-            border: none;
-            outline: none;
-            background-color: black;
-            color: white;
             cursor: pointer;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            color: white;
         }
-        #theme-menu-button:hover {
-            background-color: #333;
+        #theme-menu:hover {
+            background-color: rgba(0, 0, 0, 0.7);
         }
-        #theme-menu {
-            display: none;
+        .theme-list {
             position: absolute;
             bottom: 60px;
             left: 20px;
-            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+            background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
-            z-index: 1000;
         }
-        .theme-item {
+        .theme-list.show {
             display: flex;
-            align-items: center;
-            margin: 5px 0;
-            cursor: pointer;
-            color: white;
         }
-        .theme-item img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            margin-right: 10px;
+        .theme-list-item {
+            color: white;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        .theme-list-item:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -138,17 +133,19 @@
         <a href="https://mangadex.org/titles/feed" target="_blank">MangaDex</a>
         <a href="https://aniwave.to/home" target="_blank">AniWave</a>
         <a href="https://store.steampowered.com/" target="_blank">Steam</a>
-        <a href="" target="_blank">OneDrive</a>
+        <a href="https://onedrive.live.com/" target="_blank">OneDrive</a>
         <a href="https://chatgpt.com/" target="_blank">ChatGPT</a>
     </div>
     <div id="search-bar">
         <form action="https://www.google.com/search" method="get">
-            <input type="text" name="q" placeholder="Search Google...">
+            <input type="text" name="q" id="searchInput" placeholder="Search Google...">
             <input type="submit" value="Search">
         </form>
     </div>
-    <button id="theme-menu-button">Change Theme</button>
-    <div id="theme-menu"></div>
+    <div id="theme-menu" onclick="toggleThemeList()">Themes</div>
+    <div class="theme-list" id="themeList">
+        <!-- Themes will be dynamically added here -->
+    </div>
     <script>
         // Function to set the theme
         function setTheme(themePath) {
@@ -200,41 +197,36 @@
         fetch('themes.json')
             .then(response => response.json())
             .then(themes => {
-                const themeMenu = document.getElementById('theme-menu');
-                const themeButton = document.getElementById('theme-menu-button');
-
+                const themeMenu = document.getElementById('themeList');
                 themes.forEach(theme => {
                     const themeItem = document.createElement('div');
-                    themeItem.className = 'theme-item';
-                    themeItem.innerHTML = `
-                        <img src="${theme.path}/image.jpg?cacheBuster=${new Date().getTime()}" alt="${theme.name}">
-                        <span>${theme.name}</span>
-                    `;
+                    themeItem.className = 'theme-list-item';
+                    themeItem.textContent = theme.name;
                     themeItem.addEventListener('click', () => {
                         console.log(`Theme clicked: ${theme.name}`);
                         setTheme(theme.path);
-                        themeMenu.style.display = 'none'; // Hide theme menu after selection
+                        hideThemeList();
                     });
                     themeMenu.appendChild(themeItem);
                 });
-
-                // Show theme menu on button click
-                themeButton.addEventListener('click', () => {
-                    if (themeMenu.style.display === 'block') {
-                        themeMenu.style.display = 'none';
-                    } else {
-                        themeMenu.style.display = 'block';
-                    }
-                });
             })
-            .catch(error => {
-                console.error('Error fetching themes:', error);
-            });
+            .catch(error => console.error('Error fetching themes:', error));
 
-        // Error handling for audio loading
-        const audioElement = document.getElementById('myAudio');
-        audioElement.addEventListener('error', function(e) {
-            console.error('Error occurred while loading audio:', e.target.error);
+        // Function to toggle theme list visibility
+        function toggleThemeList() {
+            const themeList = document.getElementById('themeList');
+            themeList.classList.toggle('show');
+        }
+
+        // Function to hide theme list
+        function hideThemeList() {
+            const themeList = document.getElementById('themeList');
+            themeList.classList.remove('show');
+        }
+
+        // Clear search input when clicked
+        document.getElementById('searchInput').addEventListener('click', function() {
+            this.value = '';
         });
     </script>
 </body>
