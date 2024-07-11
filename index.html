@@ -85,19 +85,35 @@
             position: absolute;
             bottom: 20px;
             left: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
             padding: 10px;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
             color: white;
         }
-        .theme-menu-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 10px 0;
+        #theme-menu:hover {
+            background-color: rgba(0, 0, 0, 0.9);
         }
-        .theme-menu-list li {
-            margin-bottom: 5px;
+        .theme-list {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .theme-list.active {
+            display: block;
+        }
+        .theme-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            cursor: pointer;
+            color: white;
         }
         .theme-item img {
             width: 50px;
@@ -122,7 +138,7 @@
         <a href="https://mangadex.org/titles/feed" target="_blank">MangaDex</a>
         <a href="https://aniwave.to/home" target="_blank">AniWave</a>
         <a href="https://store.steampowered.com/" target="_blank">Steam</a>
-        <a href="" target="_blank">OneDrive</a>
+        <a href="https://onedrive.live.com/" target="_blank">OneDrive</a>
         <a href="https://chatgpt.com/" target="_blank">ChatGPT</a>
     </div>
     <div id="search-bar">
@@ -131,31 +147,42 @@
             <input type="submit" value="Search">
         </form>
     </div>
-    <div id="theme-menu">Themes</div>
+    <div id="theme-menu" onclick="toggleThemeList()">Change Theme</div>
+    <div id="theme-list" class="theme-list">
+        <!-- Theme items will be populated here -->
+    </div>
     <script>
         // Function to set the theme
         function setTheme(themePath) {
+            console.log(`Setting theme: ${themePath}`);
             const imageUrl = `${themePath}/image.jpg?cacheBuster=${new Date().getTime()}`;
-            const audioSource = `${themePath}/music.mp3`;
-
+            console.log(`Setting background image: ${imageUrl}`);
+            
             // Create a new Image object to check if the image exists
             const img = new Image();
             img.onload = function() {
+                console.log(`Image loaded successfully: ${imageUrl}`);
                 document.body.style.backgroundImage = `url(${imageUrl})`;
+            };
+            img.onerror = function() {
+                console.error(`Image failed to load: ${imageUrl}`);
+                // Fallback to a default image or keep the current background
             };
             img.src = imageUrl;
 
-            // Set audio source
+            const audioSource = document.getElementById('audioSource');
+            audioSource.src = `${themePath}/music.mp3`;
+            console.log(`Setting audio source: ${audioSource.src}`);
+            
             const audioElement = document.getElementById('myAudio');
-            audioElement.src = audioSource;
             audioElement.load();
 
-            // Save theme in local storage
-            localStorage.setItem('customNewTabPageTheme', themePath);
+            // Save theme selection to local storage
+            localStorage.setItem('selectedTheme', themePath);
         }
 
-        // Retrieve saved theme from local storage
-        const savedTheme = localStorage.getItem('customNewTabPageTheme');
+        // Default theme on load
+        const savedTheme = localStorage.getItem('selectedTheme');
         if (savedTheme) {
             setTheme(savedTheme);
         } else {
@@ -179,38 +206,33 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Fetch themes from JSON file and display menu
-        fetch('themes/themes.json')
+        // Fetch themes from JSON and display in theme menu
+        fetch('themes.json')
             .then(response => response.json())
             .then(themes => {
-                const themeMenu = document.getElementById('theme-menu');
-                themeMenu.addEventListener('click', () => {
-                    themeMenu.innerHTML = ''; // Clear previous theme list
-                    const themeList = document.createElement('ul');
-                    themeList.className = 'theme-menu-list';
-                    themes.forEach(theme => {
-                        const themeItem = document.createElement('li');
-                        themeItem.className = 'theme-item';
-                        themeItem.innerHTML = `
-                            <img src="${theme.path}/image.jpg" alt="${theme.name}">
-                            <span>${theme.name}</span>
-                        `;
-                        themeItem.addEventListener('click', () => {
-                            setTheme(theme.path);
-                            themeMenu.innerHTML = 'Themes'; // Restore menu text after selection
-                        });
-                        themeList.appendChild(themeItem);
+                const themeMenu = document.getElementById('theme-list');
+                themes.forEach(theme => {
+                    const themeItem = document.createElement('div');
+                    themeItem.className = 'theme-item';
+                    themeItem.innerHTML = `
+                        <img src="${theme.path}/image.jpg?cacheBuster=${new Date().getTime()}" alt="${theme.name}">
+                        <span>${theme.name}</span>
+                    `;
+                    themeItem.addEventListener('click', () => {
+                        console.log(`Theme clicked: ${theme.name}`);
+                        setTheme(theme.path);
+                        document.getElementById('theme-list').classList.remove('active');
                     });
-                    themeMenu.appendChild(themeList);
+                    themeMenu.appendChild(themeItem);
                 });
             })
             .catch(error => console.error('Error fetching themes:', error));
 
-        // Error handling for audio loading
-        const audioElement = document.getElementById('myAudio');
-        audioElement.addEventListener('error', function(e) {
-            console.error('Error occurred while loading audio:', e.target.error);
-        });
+        // Toggle theme list visibility
+        function toggleThemeList() {
+            const themeList = document.getElementById('theme-list');
+            themeList.classList.toggle('active');
+        }
     </script>
 </body>
 </html>
