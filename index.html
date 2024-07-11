@@ -14,6 +14,7 @@
             background-size: cover;
             background-position: center;
             flex-direction: column;
+            position: relative; /* Ensure absolute positioning is relative to body */
         }
         #clock {
             position: absolute;
@@ -81,14 +82,31 @@
         #favorites a:hover {
             background-color: rgba(0, 0, 0, 0.7);
         }
-        #theme-menu {
+        #theme-menu-button {
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            background-color: black;
+            color: white;
+            cursor: pointer;
+        }
+        #theme-menu-button:hover {
+            background-color: #333;
+        }
+        #theme-menu {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
         }
         .theme-item {
             display: flex;
@@ -120,7 +138,7 @@
         <a href="https://mangadex.org/titles/feed" target="_blank">MangaDex</a>
         <a href="https://aniwave.to/home" target="_blank">AniWave</a>
         <a href="https://store.steampowered.com/" target="_blank">Steam</a>
-        <a href="https://onedrive.live.com/" target="_blank">OneDrive</a>
+        <a href="" target="_blank">OneDrive</a>
         <a href="https://chatgpt.com/" target="_blank">ChatGPT</a>
     </div>
     <div id="search-bar">
@@ -129,12 +147,13 @@
             <input type="submit" value="Search">
         </form>
     </div>
+    <button id="theme-menu-button">Change Theme</button>
     <div id="theme-menu"></div>
     <script>
         // Function to set the theme
         function setTheme(themePath) {
-            console.log(`Setting theme: ${themePath.name}`);
-            const imageUrl = `${themePath.path}/image.jpg?cacheBuster=${new Date().getTime()}`;
+            console.log(`Setting theme: ${themePath}`);
+            const imageUrl = `${themePath}/image.jpg?cacheBuster=${new Date().getTime()}`;
             console.log(`Setting background image: ${imageUrl}`);
             
             // Create a new Image object to check if the image exists
@@ -150,7 +169,7 @@
             img.src = imageUrl;
 
             const audioSource = document.getElementById('audioSource');
-            audioSource.src = `${themePath.path}/music.mp3`;
+            audioSource.src = `${themePath}/music.mp3`;
             console.log(`Setting audio source: ${audioSource.src}`);
             
             const audioElement = document.getElementById('myAudio');
@@ -158,7 +177,7 @@
         }
 
         // Default theme on load
-        setTheme({ name: 'Enormeeta', path: 'themes/Enormeeta' });
+        setTheme('themes/Enormeeta');
 
         // Clock update function
         function updateClock() {
@@ -177,11 +196,13 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Fetch themes from JSON file and display menu
+        // Fetch themes from JSON and display menu
         fetch('themes.json')
             .then(response => response.json())
             .then(themes => {
                 const themeMenu = document.getElementById('theme-menu');
+                const themeButton = document.getElementById('theme-menu-button');
+
                 themes.forEach(theme => {
                     const themeItem = document.createElement('div');
                     themeItem.className = 'theme-item';
@@ -191,12 +212,24 @@
                     `;
                     themeItem.addEventListener('click', () => {
                         console.log(`Theme clicked: ${theme.name}`);
-                        setTheme(theme);
+                        setTheme(theme.path);
+                        themeMenu.style.display = 'none'; // Hide theme menu after selection
                     });
                     themeMenu.appendChild(themeItem);
                 });
+
+                // Show theme menu on button click
+                themeButton.addEventListener('click', () => {
+                    if (themeMenu.style.display === 'block') {
+                        themeMenu.style.display = 'none';
+                    } else {
+                        themeMenu.style.display = 'block';
+                    }
+                });
             })
-            .catch(error => console.error('Error fetching themes:', error));
+            .catch(error => {
+                console.error('Error fetching themes:', error);
+            });
 
         // Error handling for audio loading
         const audioElement = document.getElementById('myAudio');
