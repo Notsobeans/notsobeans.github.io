@@ -85,36 +85,25 @@
             position: absolute;
             bottom: 20px;
             left: 20px;
-            cursor: pointer;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            color: white;
-        }
-        #theme-menu:hover {
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-        .theme-list {
-            position: absolute;
-            bottom: 60px;
-            left: 20px;
-            display: none;
-            flex-direction: column;
-            align-items: flex-start;
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
-            border-radius: 5px;
-        }
-        .theme-list.show {
-            display: flex;
-        }
-        .theme-list-item {
-            color: white;
+            border-radius: 10px;
             cursor: pointer;
+            color: white;
+        }
+        .theme-menu-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        .theme-menu-list li {
             margin-bottom: 5px;
         }
-        .theme-list-item:hover {
-            text-decoration: underline;
+        .theme-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -133,62 +122,45 @@
         <a href="https://mangadex.org/titles/feed" target="_blank">MangaDex</a>
         <a href="https://aniwave.to/home" target="_blank">AniWave</a>
         <a href="https://store.steampowered.com/" target="_blank">Steam</a>
-        <a href="https://onedrive.live.com/" target="_blank">OneDrive</a>
+        <a href="" target="_blank">OneDrive</a>
         <a href="https://chatgpt.com/" target="_blank">ChatGPT</a>
     </div>
     <div id="search-bar">
         <form action="https://www.google.com/search" method="get">
-            <input type="text" name="q" id="searchInput" placeholder="Search Google...">
+            <input type="text" name="q" placeholder="Search Google...">
             <input type="submit" value="Search">
         </form>
     </div>
-    <div id="theme-menu" onclick="toggleThemeList()">Themes</div>
-    <div class="theme-list" id="themeList">
-        <!-- Themes will be dynamically added here -->
-    </div>
+    <div id="theme-menu">Themes</div>
     <script>
         // Function to set the theme
         function setTheme(themePath) {
-            console.log(`Setting theme: ${themePath}`);
             const imageUrl = `${themePath}/image.jpg?cacheBuster=${new Date().getTime()}`;
-            console.log(`Setting background image: ${imageUrl}`);
-            
+            const audioSource = `${themePath}/music.mp3`;
+
             // Create a new Image object to check if the image exists
             const img = new Image();
             img.onload = function() {
-                console.log(`Image loaded successfully: ${imageUrl}`);
                 document.body.style.backgroundImage = `url(${imageUrl})`;
-            };
-            img.onerror = function() {
-                console.error(`Image failed to load: ${imageUrl}`);
-                // Fallback to a default image or keep the current background
             };
             img.src = imageUrl;
 
-            const audioSource = document.getElementById('audioSource');
-            audioSource.src = `${themePath}/music.mp3`;
-            console.log(`Setting audio source: ${audioSource.src}`);
-            
+            // Set audio source
             const audioElement = document.getElementById('myAudio');
+            audioElement.src = audioSource;
             audioElement.load();
 
-            // Save the applied theme to localStorage
-            localStorage.setItem('appliedTheme', themePath);
+            // Save theme in local storage
+            localStorage.setItem('customNewTabPageTheme', themePath);
         }
 
-        // Function to load the theme from localStorage on page load
-        function loadTheme() {
-            const appliedTheme = localStorage.getItem('appliedTheme');
-            if (appliedTheme) {
-                setTheme(appliedTheme);
-            } else {
-                // Default theme if no theme is saved
-                setTheme('themes/Enormeeta');
-            }
+        // Retrieve saved theme from local storage
+        const savedTheme = localStorage.getItem('customNewTabPageTheme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            setTheme('themes/Enormeeta'); // Default theme if none saved
         }
-
-        // Default theme on load
-        loadTheme();
 
         // Clock update function
         function updateClock() {
@@ -207,40 +179,37 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Fetch themes from JSON and display menu
-        fetch('themes.json')
+        // Fetch themes from JSON file and display menu
+        fetch('themes/themes.json')
             .then(response => response.json())
             .then(themes => {
-                const themeMenu = document.getElementById('themeList');
-                themes.forEach(theme => {
-                    const themeItem = document.createElement('div');
-                    themeItem.className = 'theme-list-item';
-                    themeItem.textContent = theme.name;
-                    themeItem.addEventListener('click', () => {
-                        console.log(`Theme clicked: ${theme.name}`);
-                        setTheme(theme.path);
-                        hideThemeList();
+                const themeMenu = document.getElementById('theme-menu');
+                themeMenu.addEventListener('click', () => {
+                    themeMenu.innerHTML = ''; // Clear previous theme list
+                    const themeList = document.createElement('ul');
+                    themeList.className = 'theme-menu-list';
+                    themes.forEach(theme => {
+                        const themeItem = document.createElement('li');
+                        themeItem.className = 'theme-item';
+                        themeItem.innerHTML = `
+                            <img src="${theme.path}/image.jpg" alt="${theme.name}">
+                            <span>${theme.name}</span>
+                        `;
+                        themeItem.addEventListener('click', () => {
+                            setTheme(theme.path);
+                            themeMenu.innerHTML = 'Themes'; // Restore menu text after selection
+                        });
+                        themeList.appendChild(themeItem);
                     });
-                    themeMenu.appendChild(themeItem);
+                    themeMenu.appendChild(themeList);
                 });
             })
             .catch(error => console.error('Error fetching themes:', error));
 
-        // Function to toggle theme list visibility
-        function toggleThemeList() {
-            const themeList = document.getElementById('themeList');
-            themeList.classList.toggle('show');
-        }
-
-        // Function to hide theme list
-        function hideThemeList() {
-            const themeList = document.getElementById('themeList');
-            themeList.classList.remove('show');
-        }
-
-        // Clear search input when clicked
-        document.getElementById('searchInput').addEventListener('click', function() {
-            this.value = '';
+        // Error handling for audio loading
+        const audioElement = document.getElementById('myAudio');
+        audioElement.addEventListener('error', function(e) {
+            console.error('Error occurred while loading audio:', e.target.error);
         });
     </script>
 </body>
