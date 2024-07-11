@@ -109,8 +109,7 @@
     <div id="clock"></div>
     <div id="audio-controls">
         <audio id="myAudio" controls loop>
-            <source id="audioSourceMP3" type="audio/mpeg">
-            <source id="audioSourceOGG" type="audio/ogg">
+            <source id="audioSource" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
     </div>
@@ -194,6 +193,12 @@
                 setTheme(`themes/${theme}`);
             });
             themeMenu.appendChild(themeItem);
+        });
+
+        // Error handling for audio loading
+        const audioElement = document.getElementById('myAudio');
+        audioElement.addEventListener('error', function(e) {
+            console.error('Error occurred while loading audio:', e.target.error);
         });
     </script>
 </body>
